@@ -1,5 +1,6 @@
 # Cargar datos (ajusta la ruta según donde esté tu archivo)
-df = pd.read_csv("https://github.com/giuliannaac/ExamenG/blob/main/university_student_dashboard_data.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/giuliannaac/ExamenG/main/university_student_dashboard_data.csv")
+
 
 # Agrupar datos
 summary_df = datos.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
