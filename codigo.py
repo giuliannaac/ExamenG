@@ -1,3 +1,4 @@
+datos=pd.read_csv('/content/university_student_dashboard_data.csv')
 # Agrupar por 'Year' y 'Term' y sumar las columnas relevantes
 summary_df = datos.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
 
@@ -15,4 +16,6 @@ plt.ylabel("Count")
 plt.title("Applications, Admissions, and Enrollments Over Time")
 plt.legend()
 plt.grid(True)
+
+# Mostrar la gráfica
 plt.show()
