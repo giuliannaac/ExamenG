@@ -1,44 +1,97 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 
 # Load the dataset
 file_path = "university_student_dashboard_data.csv"
-df = pd.read_csv(file_path)
+datos = pd.read_csv(file_path)
 
-# Title
 st.title("University Admissions & Student Satisfaction Dashboard")
 
-# Metrics Section
-st.header("Key Admissions Metrics")
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Applications", df["Applications"].sum())
-col2.metric("Total Admissions", df["Admitted"].sum())
-col3.metric("Total Enrollments", df["Enrolled"].sum())
+# Agrupar por 'Year' y 'Term' y sumar las columnas relevantes
+summary_df = datos.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
 
-# Admissions Trends
-st.subheader("Admissions Over Time")
-fig_applications = px.line(df, x="Year", y=["Applications", "Admitted", "Enrolled"], color_discrete_map={"Applications": "blue", "Admitted": "green", "Enrolled": "red"})
-st.plotly_chart(fig_applications)
+# Crear una gráfica de líneas para visualizar la tendencia de aplicaciones, admisiones e inscripciones por término
+st.subheader("Applications, Admissions, and Enrollments Over Time")
+fig, ax = plt.subplots(figsize=(12, 6))
+for col in ['Applications', 'Admitted', 'Enrolled']:
+    ax.plot(summary_df['Year'].astype(str) + " " + summary_df['Term'], summary_df[col], marker='o', linestyle='-', label=col)
+ax.set_xticklabels(summary_df['Year'].astype(str) + " " + summary_df['Term'], rotation=45, ha='right')
+ax.set_xlabel("Year Term")
+ax.set_ylabel("Count")
+ax.set_title("Applications, Admissions, and Enrollments Over Time")
+ax.legend()
+ax.grid(True)
+st.pyplot(fig)
 
-# Retention Rate Trends
-st.subheader("Retention Rate Over Time")
-fig_retention = px.line(df, x="Year", y="Retention Rate (%)", markers=True, title="Retention Rate Trends")
-st.plotly_chart(fig_retention)
+# Gráfica de tendencia de Retention Rate
+datos_sorted = datos.sort_values(by=['Year', 'Term'])
+st.subheader("Retention Rate Trend Over Time")
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(datos_sorted['Year'].astype(str) + " " + datos_sorted['Term'], datos_sorted['Retention Rate (%)'], marker='o', linestyle='-')
+ax.set_xticklabels(datos_sorted['Year'].astype(str) + " " + datos_sorted['Term'], rotation=45, ha='right')
+ax.set_xlabel("Year Term")
+ax.set_ylabel("Retention Rate (%)")
+ax.set_title("Retention Rate Trend Over Time")
+ax.grid(True)
+st.pyplot(fig)
 
-# Student Satisfaction Trends
-st.subheader("Student Satisfaction Over Time")
-fig_satisfaction = px.line(df, x="Year", y="Student Satisfaction (%)", markers=True, title="Student Satisfaction Trends")
-st.plotly_chart(fig_satisfaction)
+# Gráfica de tendencia de Student Satisfaction
+st.subheader("Student Satisfaction Trend Over Time")
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(datos_sorted['Year'].astype(str) + " " + datos_sorted['Term'], datos_sorted['Student Satisfaction (%)'], marker='o', linestyle='-', color='r')
+ax.set_xticklabels(datos_sorted['Year'].astype(str) + " " + datos_sorted['Term'], rotation=45, ha='right')
+ax.set_xlabel("Year Term")
+ax.set_ylabel("Student Satisfaction (%)")
+ax.set_title("Student Satisfaction Trend Over Time")
+ax.grid(True)
+st.pyplot(fig)
 
-# Enrollment Breakdown by Department
-st.subheader("Departmental Enrollment Trends")
-department_cols = ["Engineering Enrolled", "Business Enrolled", "Arts Enrolled", "Science Enrolled"]
-fig_departments = px.line(df, x="Year", y=department_cols, title="Enrollment by Department")
-st.plotly_chart(fig_departments)
+# Inscripciones por departamento
+enrollment_columns = ['Engineering Enrolled', 'Business Enrolled', 'Arts Enrolled', 'Science Enrolled']
+enrollment_summary = datos[enrollment_columns].sum().reset_index()
+enrollment_summary.columns = ['Department', 'Total Enrollment']
 
-# Spring vs. Fall Trends
-st.subheader("Comparison of Spring vs. Fall Enrollment")
-fig_term_comparison = px.bar(df, x="Year", y="Enrolled", color="Term", barmode="group", title="Spring vs. Fall Enrollment Trends")
-st.plotly_chart(fig_term_comparison)
+st.subheader("Enrollment Breakdown by Department")
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.bar(enrollment_summary['Department'], enrollment_summary['Total Enrollment'], color=['blue', 'green', 'red', 'purple'])
+ax.set_xlabel("Department")
+ax.set_ylabel("Total Enrollment")
+ax.set_title("Enrollment Breakdown by Department")
+ax.set_xticklabels(enrollment_summary['Department'], rotation=45)
+ax.grid(axis='y', linestyle='--', alpha=0.7)
+st.pyplot(fig)
 
+# Comparación de Retention Rate entre Spring y Fall
+spring_data = datos[datos['Term'] == 'Spring'].sort_values(by=['Year'])
+fall_data = datos[datos['Term'] == 'Fall'].sort_values(by=['Year'])
+
+st.subheader("Spring vs Fall Term Retention Rate Trends")
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(spring_data['Year'], spring_data['Retention Rate (%)'], marker='o', linestyle='-', color='b', label="Spring Retention Rate")
+ax.plot(fall_data['Year'], fall_data['Retention Rate (%)'], marker='s', linestyle='--', color='r', label="Fall Retention Rate")
+ax.set_xlabel("Year")
+ax.set_ylabel("Retention Rate (%)")
+ax.set_title("Spring vs Fall Term Retention Rate Trends")
+ax.legend()
+ax.grid(True)
+st.pyplot(fig)
+
+# Instrucciones para subir a GitHub
+st.subheader("Deploy on GitHub with SmartLib")
+st.markdown("""
+### Steps to Deploy on GitHub:
+1. **Create a GitHub Repository**: Name it `university-dashboard`.
+2. **Upload This Script**: Save this script as `app.py` and push it to GitHub.
+3. **Create a `requirements.txt` File**: Add the following dependencies:
+   ```
+   streamlit
+   pandas
+   matplotlib
+   ```
+4. **Deploy Using Streamlit Cloud**:
+   - Go to [Streamlit Cloud](https://share.streamlit.io/)
+   - Connect your GitHub repository
+   - Select `app.py` as the main file
+   - Deploy!
+""")
