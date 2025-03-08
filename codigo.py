@@ -1,54 +1,44 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 
-# 📌 Título del Dashboard
-st.title("📊 University Student Trends Dashboard")
+# Load the dataset
+file_path = "university_student_dashboard_data.csv"
+df = pd.read_csv(file_path)
 
-# 🚀 Cargar datos desde GitHub
-url = "https://raw.githubusercontent.com/giuliannaac/ExamenG/main/university_student_dashboard_data.csv"
-df = pd.read_csv(url)
+# Title
+st.title("University Admissions & Student Satisfaction Dashboard")
 
-# ✅ Mostrar vista previa de los datos
-st.write("### 🔍 Data Preview")
-st.dataframe(df.head())
+# Metrics Section
+st.header("Key Admissions Metrics")
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Applications", df["Applications"].sum())
+col2.metric("Total Admissions", df["Admitted"].sum())
+col3.metric("Total Enrollments", df["Enrolled"].sum())
 
-# 📊 Agrupar datos por 'Year' y 'Term'
-summary_df = df.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
+# Admissions Trends
+st.subheader("Admissions Over Time")
+fig_applications = px.line(df, x="Year", y=["Applications", "Admitted", "Enrolled"], color_discrete_map={"Applications": "blue", "Admitted": "green", "Enrolled": "red"})
+st.plotly_chart(fig_applications)
 
-# 📈 Gráfico de tendencias
-st.write("### 📈 Applications, Admissions & Enrollments Over Time")
+# Retention Rate Trends
+st.subheader("Retention Rate Over Time")
+fig_retention = px.line(df, x="Year", y="Retention Rate (%)", markers=True, title="Retention Rate Trends")
+st.plotly_chart(fig_retention)
 
-plt.figure(figsize=(12, 6))
-for col in ['Applications', 'Admitted', 'Enrolled']:
-    plt.plot(summary_df['Year'].astype(str) + " " + summary_df['Term'], summary_df[col], marker='o', linestyle='-', label=col)
+# Student Satisfaction Trends
+st.subheader("Student Satisfaction Over Time")
+fig_satisfaction = px.line(df, x="Year", y="Student Satisfaction (%)", markers=True, title="Student Satisfaction Trends")
+st.plotly_chart(fig_satisfaction)
 
-plt.xticks(rotation=45, ha='right')
-plt.xlabel("Year Term")
-plt.ylabel("Count")
-plt.title("Applications, Admissions, and Enrollments Over Time")
-plt.legend()
-plt.grid(True)
+# Enrollment Breakdown by Department
+st.subheader("Departmental Enrollment Trends")
+department_cols = ["Engineering Enrolled", "Business Enrolled", "Arts Enrolled", "Science Enrolled"]
+fig_departments = px.line(df, x="Year", y=department_cols, title="Enrollment by Department")
+st.plotly_chart(fig_departments)
 
-st.pyplot(plt)
+# Spring vs. Fall Trends
+st.subheader("Comparison of Spring vs. Fall Enrollment")
+fig_term_comparison = px.bar(df, x="Year", y="Enrolled", color="Term", barmode="group", title="Spring vs. Fall Enrollment Trends")
+st.plotly_chart(fig_term_comparison)
 
-# 🔑 Key Findings & Insights
-st.write("### 🔑 Key Findings & Actionable Insights")
-total_applications = df['Applications'].sum()
-total_admitted = df['Admitted'].sum()
-total_enrolled = df['Enrolled'].sum()
-
-admission_rate = (total_admitted / total_applications) * 100 if total_applications > 0 else 0
-enrollment_rate = (total_enrolled / total_admitted) * 100 if total_admitted > 0 else 0
-
-st.write(f"✅ **Total Applications:** {total_applications:,}")
-st.write(f"✅ **Total Admitted:** {total_admitted:,} ({admission_rate:.2f}% Admission Rate)")
-st.write(f"✅ **Total Enrolled:** {total_enrolled:,} ({enrollment_rate:.2f}% Enrollment Rate)")
-
-# ⚠️ Alertas y recomendaciones
-if admission_rate < 50:
-    st.warning("⚠️ The admission rate is below 50%. Consider analyzing admission criteria.")
-if enrollment_rate < 60:
-    st.warning("⚠️ Enrollment rate is low. More engagement may be needed for admitted students.")
-
-st.success("📊 Use this data to improve student recruitment and retention strategies!")
