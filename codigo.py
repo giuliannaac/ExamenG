@@ -1,10 +1,5 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import streamlit as st
-
 # Cargar datos (ajusta la ruta según donde esté tu archivo)
-url = "https://raw.githubusercontent.com/tu_usuario/tu_repositorio/main/university_student_dashboard_data.csv"
-datos = pd.read_csv(url)
+df = pd.read_csv("https://github.com/giuliannaac/ExamenG/blob/main/university_student_dashboard_data.csv")
 
 # Agrupar datos
 summary_df = datos.groupby(['Year', 'Term'])[['Applications', 'Admitted', 'Enrolled']].sum().reset_index()
