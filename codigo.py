@@ -77,21 +77,4 @@ ax.legend()
 ax.grid(True)
 st.pyplot(fig)
 
-# Instrucciones para subir a GitHub
-st.subheader("Deploy on GitHub with SmartLib")
-st.markdown("""
-### Steps to Deploy on GitHub:
-1. **Create a GitHub Repository**: Name it `university-dashboard`.
-2. **Upload This Script**: Save this script as `app.py` and push it to GitHub.
-3. **Create a `requirements.txt` File**: Add the following dependencies:
-   ```
-   streamlit
-   pandas
-   matplotlib
-   ```
-4. **Deploy Using Streamlit Cloud**:
-   - Go to [Streamlit Cloud](https://share.streamlit.io/)
-   - Connect your GitHub repository
-   - Select `app.py` as the main file
-   - Deploy!
-""")
+
